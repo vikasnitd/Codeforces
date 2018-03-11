@@ -1,0 +1,163 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long int  
+#define mod 1000000007
+struct gg
+{
+    ll one;
+    ll zero;
+};
+gg seg[1600011];
+ll input[400011];
+ll lazy[1600011];
+ll intime[400001],outtime[400001],visited[400002];
+ll tim=1;
+ll k=0;
+vector<ll>v[200001];
+void dfs(ll s)
+{
+    visited[s]=1;
+    intime[s]=tim++;
+    input[k++]=s;
+    for(ll i=0;i<v[s].size();i++)
+    {
+        if(!visited[v[s][i]])
+        {
+            dfs(v[s][i]);
+
+        }
+    }
+    input[k++]=s;
+    outtime[s]=tim++;
+}
+void segtree(ll low,ll high,ll pos)
+{
+    if(low>high)
+        return ;
+     if(low==high)
+     {
+        if(input[low]==0)
+            seg[pos].zero=1;
+        else
+            seg[pos].one=1;
+        return ;
+     }
+     ll mid=(low+high)/2;
+     segtree(low,mid,2*pos+1);
+     segtree(mid+1,high,2*pos+2);
+     seg[pos].zero=(seg[2*pos+1].zero+seg[2*pos+2].zero);
+     seg[pos].one=seg[2*pos+1].one+seg[2*pos+2].one;
+}
+void update(ll star,ll en,ll low,ll high,ll pos)
+{
+    if(low>high)
+        return;
+    if(lazy[pos]!=0&&lazy[pos]%2)
+    {
+        ll temp=seg[pos].one;
+        seg[pos].one=seg[pos].zero;
+        seg[pos].zero=temp;
+        if(low!=high)
+        {
+            lazy[2*pos+1]+=lazy[pos];
+            lazy[2*pos+2]+=lazy[pos];
+        }
+        lazy[pos]=0;
+    }
+    if(low>en||high<star)
+        return ;
+    if(low>=star&&high<=en)
+    {
+        ll temp=seg[pos].one;
+        seg[pos].one=seg[pos].zero;
+        seg[pos].zero=temp;
+        if(low!=high)
+        {
+          lazy[2*pos+1]+=1;
+          lazy[2*pos+2]+=1;
+        }
+        return ;
+    }
+    ll mid=(low+high)/2;
+    update(star,en,low,mid,2*pos+1);
+    update(star,en,mid+1,high,2*pos+2);
+    seg[pos].zero=(seg[2*pos+1].zero+seg[2*pos+2].zero);
+    seg[pos].one=seg[2*pos+1].one+seg[2*pos+2].one;
+}
+ll cc=0;
+ll maxq(ll qlow,ll qhigh,ll low,ll high,ll pos)
+{
+    if(low>high)
+            return 0;
+    if(lazy[pos]!=0&&lazy[pos]%2)
+    {
+        ll temp=seg[pos].one;
+        seg[pos].one=seg[pos].zero;
+        seg[pos].zero=temp;
+        if(low!=high)
+        {
+            lazy[2*pos+1]+=lazy[pos];
+            lazy[2*pos+2]+=lazy[pos];
+        }
+        lazy[pos]=0;
+    }
+    if(qlow>high||qhigh<low)
+        return 0;
+    if(low>=qlow&&high<=qhigh)
+        return seg[pos].one;
+    ll mid=(low+high)/2;
+    return (maxq(qlow,qhigh,low,mid,2*pos+1)+maxq(qlow,qhigh,mid+1,high,2*pos+2));
+}
+int main()
+{
+    #ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+    #endif
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+  ll t,i,j,l,m,n;
+  cin>>n;
+  for(i=0;i<(n-1);i++)
+  {
+    cin>>l;
+    v[l].push_back(i+2);
+    v[i+2].push_back(l);
+  }
+  dfs(1);
+  ll a[200001];
+  for(i=0;i<n;i++)
+    cin>>a[i];
+  for(i=0;i<k;i++)
+    {
+        input[i]=a[input[i]-1];
+    }
+    // for(i=0;i<k;i++)
+    //     cout<<input[i]<<" ";
+
+    ll q;
+
+    cin>>q;
+    segtree(0,k-1,0);
+    while(q--)
+    {
+        string qq;
+        cin>>qq;
+        if(qq=="get")
+        {
+            cin>>l;
+            ll low=intime[l]-1;
+            ll high=outtime[l]-1;
+           // cout<<low<<" "<<high<<" ";
+            cout<<maxq(low,high,0,k-1,0)/2<<"\n";
+        }
+        else
+        {
+            cin>>l;
+            ll low=intime[l]-1;
+            ll high=outtime[l]-1;
+            update(low,high,0,k-1,0);
+        }
+    }
+return 0;
+}
