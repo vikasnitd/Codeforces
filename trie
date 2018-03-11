@@ -1,0 +1,87 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long int 
+#define mod 1000000007
+
+struct node
+{
+  map<char,node*>mp;
+  ll cnt;
+};
+node* root=new node();
+void insrt(string s)
+{
+    node* latest=root;
+    for(ll i=0;i<s.size();i++)
+    {
+        if(latest->mp.count(s[i])==false)
+        {
+            latest->mp[s[i]]=new node();
+        }
+        latest=latest->mp[s[i]];
+        latest->cnt++;
+    }
+    latest->cnt=-1;
+}
+ll ans=0;
+ll ans1=0;
+ll getans(string s)
+{
+    node* latest=root;
+
+    for(ll i=0;i<s.size();i++)
+    {
+        latest=latest->mp[s[i]];
+    }
+    if((latest->cnt)!=-1)
+      return 0;
+    else
+      return 1;
+}
+
+int main()
+{
+    #ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+    #endif
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    ll t,i,j,l,n,m,x,k,kk,r,y,c;
+    cin>>t;
+    while(t--)
+    {
+        cin>>n;
+        
+        for(i=0;i<n;i++)
+          {
+            cin>>a[i];
+          }
+        for(i=0;i<n;i++)
+        {
+            
+        }
+
+          sort(a,a+n,fun);
+
+          for(i=0;i<n;i++)
+          {
+              insrt(a[i].s);
+          }
+
+        ll temp=1;
+
+        for(i=0;i<n;i++)
+        {
+            if(!getans(a[i].s))
+              {
+                cout<<"NO\n";
+                temp=0;
+                break;
+              }
+        }
+        if(temp)
+          cout<<"YES\n";
+    }
+return 0;
+}
