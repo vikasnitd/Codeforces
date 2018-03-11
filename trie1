@@ -1,0 +1,144 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long int 
+#define mod 100000000007
+ll modexpo(ll x,ll y){if(y==0)return 1;if(y%2){ll viky=modexpo(x,y/2);
+return (((x*viky)%mod)*viky)%mod;}else{ll viky=modexpo(x,y/2);return (viky*viky)%mod;
+}}
+ll trie[10000001][2];
+ll cnt[10000011][2];
+ll node=0;
+void insrt(string s)
+{
+    ll curr=0;
+    for(ll i=0;i<s.size();i++)
+    {
+      if(s[i]=='0')
+      {
+        if(cnt[curr][0])
+        {
+          cnt[curr][0]++;
+          curr=trie[curr][0];
+        }
+        else
+        {
+          node++;
+          trie[curr][0]=node;
+          cnt[curr][0]++;
+          curr=trie[curr][0];
+        }
+      }
+      else
+      {
+        if(cnt[curr][1])
+        {
+          cnt[curr][1]++;
+          curr=trie[curr][1];
+        }
+        else
+        {
+          node++;
+          trie[curr][1]=node;
+          cnt[curr][1]++;
+          curr=trie[curr][1];
+        }
+      }
+    }
+}
+
+string getans(string s)
+{
+    ll curr=0;
+    for(ll i=0;i<s.size();i++)
+    {
+      if(s[i]=='0')
+      {
+        if(!cnt[curr][0])
+        {
+          s[i]='1';
+          cnt[curr][1]--;
+          curr=trie[curr][1];
+        }
+        else
+        {
+          cnt[curr][0]--;
+          curr=trie[curr][0];
+        }
+      }
+      else
+      {
+        if(!cnt[curr][1])
+        {
+          cnt[curr][0]--;
+          curr=trie[curr][0];
+        }
+        else
+        {
+          s[i]='0';
+          cnt[curr][1]--;
+          curr=trie[curr][1];
+        }
+      }
+    }
+    return s;
+}
+
+int main()
+{
+    #ifndef ONLINE_JUDGE
+      freopen("input.txt", "r", stdin);
+      freopen("output.txt", "w", stdout);
+    #endif
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+    ll t,i,j,l,n,m,x,k,kk,r,y,c;
+    cin>>n;
+    ll a[n+11];
+    // string s;
+    for(i=0;i<n;i++)
+    {
+      cin>>a[i];
+    }
+    for(i=0;i<n;i++)
+    {
+      cin>>l;
+      string s;
+      for(j=0;j<32;j++)
+        s=s+"0";
+      j=31;
+      while(l)
+      {
+        if(l%2)
+          s[j--]='1';
+        else
+          s[j--]='0';
+        l=l/2;
+      }
+      insrt(s);
+    }
+    for(i=0;i<n;i++)
+    {
+      l=a[i];
+      string s;
+      for(j=0;j<32;j++)
+        s=s+"0";
+      j=31;
+      while(l)
+      {
+        if(l%2)
+          s[j--]='1';
+        else
+          s[j--]='0';
+        l=l/2;
+      }
+      s=getans(s);
+      // cout<<s<<endl;
+      ll ans=0;
+      for(j=31;j>=0;j--)
+      {
+        ans=ans+(s[j]-'0')*modexpo(2,31-j);
+      }
+      cout<<ans<<" ";
+    }
+return 0;
+}
