@@ -81,7 +81,7 @@ int main()
               }
         }
         if(temp)
-          cout<<"YES\n";
+          cout<<"YES\n ";
     }
 return 0;
 }
