@@ -1,5 +1,6 @@
 #include<bits/stdc++.h>
 using namespace std;
+#define kk int
 #define ll long long int
 #define M (ll)(1e9+7)
 ll aage[500011],piche[500011];
