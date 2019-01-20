@@ -1,0 +1,182 @@
+#include<bits/stdc++.h>
+using namespace std;
+#define ll int
+map<ll,ll>mp[1000005];
+vector<ll>v[100011];
+vector<ll>v1[100001];
+ll input[500001];
+ll intime[200011],outtime[200011],ap[100011],visited[100011];
+ll tim = 0;
+ll k=0;
+
+void dfs(ll s){
+  // cout<<s<<" ";
+  visited[s] = 1;
+  intime[s] = tim++;
+  input[k++] = ap[s-1];
+  for(auto x:v[s]){
+    if(!visited[x])
+      dfs(x);
+  }
+  outtime[s] = tim++;
+  input[k++] = ap[s-1];
+}
+
+void merge(ll x, ll y,ll pos)
+{
+    for(auto xx:mp[x]){
+      mp[pos][xx.first] += xx.second;
+    }
+    for(auto yy:mp[y]){
+      mp[pos][yy.first] += yy.second;
+    }
+}
+void consegtree(ll low ,ll high, ll pos)
+{
+  if(low>high){
+    return ;
+  }
+  if(low==high)
+  {
+      ll val = input[low];
+      for(auto x:v1[val]){
+        mp[pos][x]++;
+      }
+      return ;
+  }
+  ll mid = (low+high)/2;
+  consegtree(low,mid,2*pos+1);
+  consegtree(mid+1,high,2*pos+2);
+  merge(2*pos+1,2*pos+2,pos);
+}
+ll small(ll qlow,ll qhigh, ll low , ll high , ll pos,ll x)
+{
+  if(low>high)
+    return 0;
+  
+  if(qlow>high||qhigh<low)
+    return 0;
+  if(qlow<=low&&qhigh>=high)
+  {
+    return mp[pos][x];
+  }
+  ll mid=(low+high)/2;
+  return (small(qlow,qhigh,low,mid,2*pos+1,x)+small(qlow,qhigh,mid+1,high,2*pos+2,x));
+}
+void merge1(ll pos,ll val, ll prev)
+{
+  for(auto x:v1[prev]){
+    mp[pos][x]--;
+  }
+  for(auto x:v1[val]){
+    mp[pos][x]++;
+  }
+}
+void update(ll qlow,ll qhigh, ll low,ll high, ll pos,ll val,ll prev){
+
+  if(low>high){
+    return ;
+  }
+
+  if(qlow>high||qhigh<low){
+    return ;
+  }
+
+  if(qlow == low&&qhigh == high){
+    for(auto x:v1[prev]){
+      mp[pos][x]--;
+    }
+    for(auto x:v1[val]){
+      mp[pos][x]++;
+    }
+    return ;
+  }
+
+  ll mid = (low+high)>>1;
+
+  update(qlow,qhigh,low,mid,2*pos+1,val,prev);
+  update(qlow,qhigh,mid+1,high,2*pos+2,val,prev);
+
+  if(qlow>=low&&qhigh<=high){
+    merge1(pos,val,prev);
+  }
+
+}
+
+ll prime[10001];
+ll main() 
+{
+  #ifndef ONLINE_JUDGE
+    freopen("input.txt", "r", stdin);
+    freopen("output.txt", "w", stdout);
+  #endif
+  ios_base::sync_with_stdio(false);
+  cin.tie(NULL);  
+  
+  for(ll i=2;i<=10000;i++){
+    if(prime[i] == 0){
+      for(ll j=2;j*i<=10000;j++){
+        prime[i*j] = 1;
+      }
+    }
+  }
+
+  for(ll i=2;i<=10000;i++){
+    for(ll j=1;j<=sqrt(i);j++){
+      if(i%j == 0){
+        if(prime[j]==0){
+          v1[i].push_back(j);
+        }
+        if((j!=(i/j))&&prime[i/j] == 0){
+          v1[i].push_back(i/j);
+        }
+      }
+    }
+  }
+
+  ll n,l,r;
+  cin>>n;
+
+  for(ll i=0;i<n;i++){
+    cin>>ap[i];
+  }
+
+  for(ll i=1;i<n;i++){
+    cin>>l>>r;
+    v[l].push_back(r);
+    v[r].push_back(l);
+  }
+
+  dfs(1);
+  consegtree(0,k-1,0);
+  // cout<<prime[4]<<" ";
+  // for(ll i=0;i<k;i++){
+  //   cout<<input[i]<<" ";
+  // }
+  ll q;
+  cin>>q;
+
+  while(q--){
+    cin>>l;
+    if(l == 1){
+      cin>>l>>r;
+      update(intime[l],intime[l],0,k-1,0,r,input[intime[l]]);
+      update(outtime[l],outtime[l],0,k-1,0,r,input[intime[l]]);
+      input[intime[l]] = r;
+    }else{
+      cin>>l>>r;
+      // cout<<l<<" "<<intime[l]<<" "<<outtime[l]<<"\n";
+
+      ll ans = small(intime[l],outtime[l],0,k-1,0,r);
+      // cout<<ans<<" ";
+      ans = ans/2;
+      ans = (ans*(ans-1))/2;
+      cout<<ans<<"\n";
+    }
+  }
+
+
+
+  return 0;
+}
+  
